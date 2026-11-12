@@ -1,4 +1,4 @@
-import { Building2, Clock, MapPin, Users } from 'lucide-react';
+import { Building2, Clock, MapPin, Users, Monitor } from 'lucide-react';
 import { Room } from '@/types';
 import { minutesToLabel } from '@/lib/timeUtils';
 
@@ -41,6 +41,18 @@ export function RoomTimeline({ room, bookings, requestStart, requestEnd }: RoomT
           )}
         </div>
       </div>
+
+      {/* Equipment badges */}
+      {room.equipment.length > 0 && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {room.equipment.map((item) => (
+            <span key={item} className="flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+              <Monitor className="h-2.5 w-2.5" />
+              {item}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Timeline bar */}
       <div className="relative h-10 w-full overflow-hidden rounded-md bg-slate-100">
