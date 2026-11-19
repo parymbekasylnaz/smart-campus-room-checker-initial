@@ -7,8 +7,8 @@ import { TestModePanel } from '@/components/TestModePanel';
 import { TestCasesPanel } from '@/components/TestCasesPanel';
 import { RoomFilterPanel } from '@/components/RoomFilterPanel';
 import { checkAvailability } from '@/lib/checkAvailability';
-import { getCurrentMinutesFromMidnight, minutesToLabel } from '@/lib/timeUtils';
-import { SAMPLE_ROOMS, SAMPLE_BOOKINGS, DEFAULT_TEST_CONFIG } from '@/lib/sampleData';
+import { minutesToLabel } from '@/lib/timeUtils';
+import { SAMPLE_ROOMS, DEFAULT_TEST_CONFIG, getActiveDataSource } from '@/lib/sampleData';
 import { filterRooms, getAvailableEquipment, RoomFilterCriteria } from '@/lib/roomFilter';
 import { TestCase } from '@/lib/testCases';
 import { AvailabilityResult, TestConfig } from '@/types';
@@ -26,9 +26,7 @@ function App() {
     requiredEquipment: [],
   });
 
-  const activeRooms = testConfig.enabled ? testConfig.rooms : SAMPLE_ROOMS;
-  const activeBookings = testConfig.enabled ? testConfig.bookings : SAMPLE_BOOKINGS;
-  const currentTime = testConfig.enabled ? testConfig.currentTimeInMinutes : getCurrentMinutesFromMidnight();
+  const { rooms: activeRooms, bookings: activeBookings, currentTimeInMinutes: currentTime } = getActiveDataSource(testConfig);
 
   // Apply capacity + equipment filters (F1, F2)
   const filteredRooms = useMemo(
@@ -78,13 +76,14 @@ function App() {
   };
 
   const handleLoadCase = useCallback((tc: TestCase) => {
+    const source = getActiveDataSource(testConfig);
     setPreset({ roomId: tc.roomId, startTime: tc.startTime, endTime: tc.endTime });
     setActiveCaseId(tc.id);
     setResult(checkAvailability(
       { roomId: tc.roomId, startTime: tc.startTime, endTime: tc.endTime },
-      testConfig.enabled ? testConfig.rooms : SAMPLE_ROOMS,
-      testConfig.enabled ? testConfig.bookings : SAMPLE_BOOKINGS,
-      testConfig.enabled ? testConfig.currentTimeInMinutes : getCurrentMinutesFromMidnight()
+      source.rooms,
+      source.bookings,
+      source.currentTimeInMinutes
     ));
     setRequestStart(tc.startTime);
     setRequestEnd(tc.endTime);

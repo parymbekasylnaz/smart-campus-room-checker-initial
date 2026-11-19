@@ -1,4 +1,29 @@
 import { Room, Booking, TestConfig } from '@/types';
+import { getCurrentMinutesFromMidnight } from '@/lib/timeUtils';
+
+export interface ActiveDataSource {
+  rooms: Room[];
+  bookings: Booking[];
+  currentTimeInMinutes: number;
+}
+
+// Pure adapter: resolves the active rooms, bookings, and current time from the
+// test config. When test mode is enabled, the config's deterministic values are
+// used; otherwise the live clock and sample fixtures are used.
+export function getActiveDataSource(testConfig: TestConfig): ActiveDataSource {
+  if (testConfig.enabled) {
+    return {
+      rooms: testConfig.rooms,
+      bookings: testConfig.bookings,
+      currentTimeInMinutes: testConfig.currentTimeInMinutes,
+    };
+  }
+  return {
+    rooms: SAMPLE_ROOMS,
+    bookings: SAMPLE_BOOKINGS,
+    currentTimeInMinutes: getCurrentMinutesFromMidnight(),
+  };
+}
 
 export const SAMPLE_ROOMS: Room[] = [
   {
